@@ -4,7 +4,6 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
   FiArrowUpRight,
   FiEye,
-  FiFlag,
   FiMessageCircle,
   FiShield,
   FiZap
@@ -49,10 +48,6 @@ function CardDecoration({ variant }: { variant: CardAnim }) {
       );
     case "visibility":
       return <span className="why-scan" aria-hidden="true" />;
-    case "eu":
-      return <span className="why-flag why-flag--eu" aria-hidden="true" />;
-    case "usa":
-      return <span className="why-flag why-flag--usa" aria-hidden="true" />;
     case "fast":
       return (
         <>

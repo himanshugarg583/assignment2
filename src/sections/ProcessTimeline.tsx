@@ -103,7 +103,7 @@ export default function ProcessTimeline() {
           whileInView="show"
           viewport={{ once: true, amount: 0.25 }}
         >
-          {industries.map((industry, index) => (
+          {industries.map((industry) => (
             <motion.div
               key={industry.title}
               className="glass-card overflow-hidden rounded-[24px] relative"

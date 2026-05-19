@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+
+# Environment
+.env.example
+
+
+# Logs
+logs/
+*.log
+
+# Uploaded media (keep folder, ignore files)
+uploads/media/*
+!uploads/media/.gitkeep
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Build
+dist/
+build/
+
+# Coverage
+coverage/
+
+# Temp
+tmp/
+temp/
+config.bat
+.env
+
+# Baileys auth session (contains private keys for WhatsApp pairing)
+auth_session/
+temp_auto_push.bat
+temp_interactive_push.bat

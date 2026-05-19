@@ -14,12 +14,14 @@ const services = [
   {
     number: "01",
     title: "Road Freight Services",
+    description: "Nationwide road freight with live tracking and priority handling.",
     icon: FiTruck,
     image: roadImage
   },
   {
     number: "02",
     title: "Warehousing Services",
+    description: "Secure storage, inventory management, and rapid dispatch support.",
     icon: FiPackage,
     image: warehouseImage
   }
