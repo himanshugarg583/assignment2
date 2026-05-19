@@ -1,5 +1,5 @@
-import { useLayoutEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { useLayoutEffect, useRef } from "react";
+import { motion, useMotionValue, useSpring } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
@@ -28,41 +28,40 @@ const services = [
 ];
 
 
-function TiltCard({
-  children
-}: {
-  children: React.ReactNode;
-}) {
+function TiltCard({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [style, setStyle] = useState<React.CSSProperties>({});
+  const rotateX = useMotionValue(0);
+  const rotateY = useMotionValue(0);
+  const smoothX = useSpring(rotateX, { stiffness: 220, damping: 18 });
+  const smoothY = useSpring(rotateY, { stiffness: 220, damping: 18 });
 
   const handleMove = (event: React.MouseEvent<HTMLDivElement>) => {
     const rect = ref.current?.getBoundingClientRect();
     if (!rect) return;
-    const x = event.clientX - rect.left - rect.width / 2;
-    const y = event.clientY - rect.top - rect.height / 2;
-    const rotateX = (-y / rect.height) * 8;
-    const rotateY = (x / rect.width) * 8;
-    setStyle({
-      transform: `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`
-    });
+    const x = (event.clientX - rect.left) / rect.width - 0.5;
+    const y = (event.clientY - rect.top) / rect.height - 0.5;
+    rotateX.set(-y * 8);
+    rotateY.set(x * 10);
   };
 
   const handleLeave = () => {
-    setStyle({ transform: "rotateX(0deg) rotateY(0deg)" });
+    rotateX.set(0);
+    rotateY.set(0);
   };
 
   return (
-    <div style={{ perspective: "1000px" }}>
-      <div
+    <div style={{ perspective: "1200px" }}>
+      <motion.div
         ref={ref}
-        style={style}
         onMouseMove={handleMove}
         onMouseLeave={handleLeave}
+        style={{ rotateX: smoothX, rotateY: smoothY }}
+        whileHover={{ y: -10, boxShadow: "0 26px 55px rgba(0, 0, 0, 0.35)" }}
+        transition={{ type: "spring", stiffness: 180, damping: 18 }}
         className="service-card glass-card rounded-[24px] p-6 transition-transform duration-300 hover:shadow-glow"
       >
-        {children}
-      </div>
+        <div className="service-card-inner">{children}</div>
+      </motion.div>
     </div>
   );
 }
@@ -70,45 +69,41 @@ function TiltCard({
 export default function Services() {
   const sectionRef = useRef<HTMLDivElement>(null);
 
+  const gridVariants = {
+    hidden: {},
+    show: {
+      transition: {
+        staggerChildren: 0.15
+      }
+    }
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 30, scale: 0.98 },
+    show: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: { type: "spring", stiffness: 150, damping: 18 }
+    }
+  };
+
   useLayoutEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
     const ctx = gsap.context(() => {
-      const cards = gsap.utils.toArray<HTMLElement>(".service-card");
-      cards.forEach((card, index) => {
-        gsap.from(card, {
-          opacity: 0,
-          x: index % 2 === 0 ? -60 : 60,
-          y: 28,
+      const images = gsap.utils.toArray<HTMLElement>(".service-image img");
+      images.forEach((image) => {
+        gsap.to(image, {
+          y: -18,
           ease: "none",
           scrollTrigger: {
-            trigger: card,
+            trigger: image,
             start: "top 80%",
-            end: "top 50%",
+            end: "bottom top",
             scrub: 1,
             invalidateOnRefresh: true
           }
         });
-      });
-
-      const images = gsap.utils.toArray<HTMLElement>(".service-image");
-      images.forEach((image) => {
-        gsap.fromTo(
-          image,
-          { opacity: 0, y: 18, scale: 1.02 },
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            ease: "none",
-            scrollTrigger: {
-              trigger: image,
-              start: "top 80%",
-              end: "top 50%",
-              scrub: 1,
-              invalidateOnRefresh: true
-            }
-          }
-        );
       });
     }, sectionRef);
 
@@ -123,11 +118,17 @@ export default function Services() {
           title="Our Services"
           description="From temperature-controlled transport to regional distribution — we’ve got it covered."
         />
-        <div className="grid gap-6 md:grid-cols-2">
+        <motion.div
+          className="grid gap-6 md:grid-cols-2"
+          variants={gridVariants}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.25 }}
+        >
           {services.map((service) => {
             const Icon = service.icon;
             return (
-              <div key={service.title}>
+              <motion.div key={service.title} variants={cardVariants}>
                 <TiltCard>
                   <div className="flex items-center justify-between">
                     <div className="h-12 w-12 rounded-2xl bg-green/15 border border-green/30 flex items-center justify-center text-green">
@@ -150,15 +151,15 @@ export default function Services() {
                       className="h-44 w-full object-cover"
                       loading="eager"
                       decoding="async"
-                      whileHover={{ scale: 1.03 }}
-                      transition={{ duration: 0.6 }}
+                      whileHover={{ scale: 1.06 }}
+                      transition={{ duration: 0.6, ease: "easeOut" }}
                     />
                   </div>
                 </TiltCard>
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

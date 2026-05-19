@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useMotionValue, useSpring } from "framer-motion";
 import SectionHeading from "../components/SectionHeading";
 import manufacturingImage from "../image/fourth.avif";
 import restaurantsImage from "../image/fifth.avif";
@@ -86,6 +87,62 @@ const shineVariants = {
   }
 };
 
+type Industry = (typeof industries)[number];
+
+function IndustryCard({ industry }: { industry: Industry }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const rotateX = useMotionValue(0);
+  const rotateY = useMotionValue(0);
+  const smoothX = useSpring(rotateX, { stiffness: 180, damping: 18 });
+  const smoothY = useSpring(rotateY, { stiffness: 180, damping: 18 });
+
+  const handleMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    const rect = ref.current?.getBoundingClientRect();
+    if (!rect) return;
+    const x = (event.clientX - rect.left) / rect.width - 0.5;
+    const y = (event.clientY - rect.top) / rect.height - 0.5;
+    rotateX.set(-y * 8);
+    rotateY.set(x * 10);
+  };
+
+  const handleLeave = () => {
+    rotateX.set(0);
+    rotateY.set(0);
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      className="glass-card overflow-hidden rounded-[24px] relative"
+      variants={cardVariants}
+      whileHover="hover"
+      onMouseMove={handleMove}
+      onMouseLeave={handleLeave}
+      style={{ rotateX: smoothX, rotateY: smoothY, transformStyle: "preserve-3d" }}
+      transition={{ type: "spring", stiffness: 160, damping: 18 }}
+    >
+      <motion.div
+        className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
+        variants={shineVariants}
+      />
+      <div className="h-40 w-full overflow-hidden">
+        <motion.img
+          src={industry.image}
+          alt={industry.title}
+          className="h-full w-full object-cover"
+          loading="lazy"
+          decoding="async"
+          variants={imageVariants}
+        />
+      </div>
+      <div className="p-6">
+        <h3 className="text-lg font-semibold">{industry.title}</h3>
+        <p className="mt-2 text-sm text-white/70">{industry.description}</p>
+      </div>
+    </motion.div>
+  );
+}
+
 export default function ProcessTimeline() {
   return (
     <section id="process" className="section-padding py-20">
@@ -104,33 +161,7 @@ export default function ProcessTimeline() {
           viewport={{ once: true, amount: 0.25 }}
         >
           {industries.map((industry) => (
-            <motion.div
-              key={industry.title}
-              className="glass-card overflow-hidden rounded-[24px] relative"
-              variants={cardVariants}
-              whileHover="hover"
-            >
-              <motion.div
-                className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
-                variants={shineVariants}
-              />
-              <div className="h-40 w-full overflow-hidden">
-                <motion.img
-                  src={industry.image}
-                  alt={industry.title}
-                  className="h-full w-full object-cover"
-                  loading="lazy"
-                  decoding="async"
-                  variants={imageVariants}
-                />
-              </div>
-              <div className="p-6">
-                <h3 className="text-lg font-semibold">{industry.title}</h3>
-                <p className="mt-2 text-sm text-white/70">
-                  {industry.description}
-                </p>
-              </div>
-            </motion.div>
+            <IndustryCard key={industry.title} industry={industry} />
           ))}
         </motion.div>
       </div>

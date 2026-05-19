@@ -1,4 +1,5 @@
 import { useLayoutEffect, useRef } from "react";
+import { motion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
@@ -35,6 +36,24 @@ const rightCards = [
 ] as const;
 
 type CardAnim = (typeof rightCards)[number]["anim"];
+
+const gridVariants = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: 0.15
+    }
+  }
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 24 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring", stiffness: 140, damping: 18 }
+  }
+};
 
 function CardDecoration({ variant }: { variant: CardAnim }) {
   switch (variant) {
@@ -73,20 +92,15 @@ export default function WhyChoose() {
   useLayoutEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
     const ctx = gsap.context(() => {
-      const cards = gsap.utils.toArray<HTMLElement>(".why-card");
-      cards.forEach((card) => {
-        gsap.from(card, {
-          opacity: 0,
-          y: 26,
-          ease: "none",
-          scrollTrigger: {
-            trigger: card,
-            start: "top 85%",
-            end: "top 60%",
-            scrub: 1,
-            invalidateOnRefresh: true
-          }
-        });
+      gsap.to(".why-parallax", {
+        y: -40,
+        ease: "none",
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: true
+        }
       });
     }, sectionRef);
 
@@ -96,7 +110,7 @@ export default function WhyChoose() {
   return (
     <section id="why" className="section-padding py-20" ref={sectionRef}>
       <div className="grid gap-12 lg:grid-cols-[1.1fr_1fr]">
-        <div className="space-y-8">
+        <div className="why-parallax space-y-8">
           <SectionHeading
             label="Why EG TRANS"
             title="Why Leading Businesses Rely on Us"
@@ -109,20 +123,38 @@ export default function WhyChoose() {
           </div>
         </div>
 
-        <div className="grid gap-6">
-          {rightCards.map((card) => {
+        <motion.div
+          className="grid gap-6"
+          variants={gridVariants}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.3 }}
+        >
+          {rightCards.map((card, index) => {
             const Icon = card.icon;
             return (
-              <div key={card.title} className="why-card glass-card rounded-[24px] p-6">
+              <motion.div
+                key={card.title}
+                className="why-card glass-card rounded-[24px] p-6"
+                variants={cardVariants}
+                animate={{ y: [0, -6, 0] }}
+                transition={{
+                  duration: 6,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: index * 0.4
+                }}
+                whileHover={{ y: -8, boxShadow: "0 24px 50px rgba(0,0,0,0.35)" }}
+              >
                 <div className="why-icon h-24 w-24 rounded-2xl bg-green/15 border border-green/30 flex items-center justify-center text-green">
                   <Icon className="why-icon__glyph" />
                   <CardDecoration variant={card.anim} />
                 </div>
                 <h3 className="mt-4 text-base font-semibold">{card.title}</h3>
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

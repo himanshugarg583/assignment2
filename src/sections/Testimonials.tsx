@@ -22,15 +22,19 @@ export default function Testimonials() {
           description="Premium service, realtime visibility, and white-glove delivery experiences."
         />
 
-        <div className="relative">
+        <motion.div
+          className="relative"
+          animate={{ y: [0, -6, 0] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        >
           <AnimatePresence mode="wait">
             <motion.div
               key={testimonials[active].name}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.6 }}
-              className="glass-card rounded-[24px] p-8"
+              initial={{ opacity: 0, y: 24, rotate: -1, filter: "blur(6px)" }}
+              animate={{ opacity: 1, y: 0, rotate: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -24, rotate: 1, filter: "blur(6px)" }}
+              transition={{ duration: 0.7, ease: "easeOut" }}
+              className="glass-card testimonial-card rounded-[24px] p-8"
             >
               <p className="text-lg text-white/80">
                 "{testimonials[active].quote}"
@@ -58,7 +62,7 @@ export default function Testimonials() {
               />
             ))}
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

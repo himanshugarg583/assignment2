@@ -33,9 +33,9 @@ export default function MagneticButton({
       href={href}
       onMouseMove={handleMove}
       onMouseLeave={handleLeave}
-      className={`inline-flex items-center justify-center gap-2 rounded-full border border-green/40 bg-green px-6 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-navy transition-all ${className}`}
+      className={`magnetic-button inline-flex items-center justify-center gap-2 rounded-full border border-green/40 bg-green px-6 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-navy transition-all ${className}`}
       style={{ transform: `translate3d(${offset.x}px, ${offset.y}px, 0)` }}
-      whileHover={{ scale: 1.03 }}
+      whileHover={{ scale: 1.04, boxShadow: "0 0 30px rgba(60, 185, 140, 0.35)" }}
       whileTap={{ scale: 0.98 }}
     >
       {children}

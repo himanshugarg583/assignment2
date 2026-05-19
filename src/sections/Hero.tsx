@@ -28,25 +28,93 @@ const statCards = [
 
 export default function Hero() {
   const heroRef = useRef<HTMLDivElement>(null);
+  const imageWrapRef = useRef<HTMLDivElement>(null);
+  const title = "Road Freight & Warehousing, Done Right";
+  const words = title.split(" ");
 
   useLayoutEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
+    let cleanupPointer = () => {};
     const ctx = gsap.context(() => {
-      gsap.from(".hero-animate", {
-        opacity: 0,
-        y: 28,
-        duration: 1.1,
-        ease: "power3.out",
-        stagger: 0.12
-      });
+      const timeline = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+      timeline
+        .from(".hero-title-word", {
+          opacity: 0,
+          y: 36,
+          filter: "blur(8px)",
+          duration: 0.9,
+          stagger: 0.06
+        })
+        .from(
+          ".hero-subtitle",
+          { opacity: 0, y: 18, duration: 0.7, filter: "blur(6px)" },
+          "-=0.5"
+        )
+        .from(
+          ".hero-cta",
+          { opacity: 0, y: 18, duration: 0.7 },
+          "-=0.45"
+        )
+        .from(
+          ".hero-media",
+          { opacity: 0, y: 26, scale: 0.98, duration: 0.9 },
+          "-=0.5"
+        )
+        .from(
+          ".hero-stat",
+          { opacity: 0, y: 20, duration: 0.6, stagger: 0.12 },
+          "-=0.6"
+        );
 
       gsap.to(".hero-float", {
         y: -12,
         repeat: -1,
         yoyo: true,
-        duration: 4,
+        duration: 4.6,
         ease: "sine.inOut",
-        stagger: 0.2
+        stagger: 0.25
+      });
+
+      gsap.to(".hero-truck", {
+        y: -10,
+        scale: 1.02,
+        repeat: -1,
+        yoyo: true,
+        duration: 6,
+        ease: "sine.inOut"
+      });
+
+      gsap.to(".hero-shadow", {
+        scale: 1.1,
+        opacity: 0.35,
+        repeat: -1,
+        yoyo: true,
+        duration: 4.8,
+        ease: "sine.inOut"
+      });
+
+      gsap.to(".hero-glow-pulse", {
+        opacity: 0.9,
+        scale: 1.08,
+        duration: 6,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut"
+      });
+
+      const routes = gsap.utils.toArray<SVGPathElement>(".hero-route");
+      routes.forEach((route, index) => {
+        const length = route.getTotalLength();
+        gsap.set(route, { strokeDasharray: length, strokeDashoffset: length });
+        gsap.to(route, {
+          strokeDashoffset: 0,
+          duration: 3.2 + index * 0.4,
+          ease: "power1.inOut",
+          repeat: -1,
+          yoyo: true,
+          delay: index * 0.4
+        });
       });
 
       gsap.to(".hero-parallax", {
@@ -58,9 +126,58 @@ export default function Hero() {
           scrub: true
         }
       });
+
+      const hero = heroRef.current;
+      const imageWrap = imageWrapRef.current;
+      if (hero && imageWrap) {
+        const setX = gsap.quickTo(imageWrap, "x", {
+          duration: 0.6,
+          ease: "power3.out"
+        });
+        const setY = gsap.quickTo(imageWrap, "y", {
+          duration: 0.6,
+          ease: "power3.out"
+        });
+        const setRotateX = gsap.quickTo(imageWrap, "rotationX", {
+          duration: 0.6,
+          ease: "power3.out"
+        });
+        const setRotateY = gsap.quickTo(imageWrap, "rotationY", {
+          duration: 0.6,
+          ease: "power3.out"
+        });
+
+        const handleMove = (event: PointerEvent) => {
+          const rect = hero.getBoundingClientRect();
+          const relX = (event.clientX - rect.left) / rect.width - 0.5;
+          const relY = (event.clientY - rect.top) / rect.height - 0.5;
+          setX(relX * 14);
+          setY(relY * 14);
+          setRotateX(-relY * 8);
+          setRotateY(relX * 8);
+        };
+
+        const handleLeave = () => {
+          setX(0);
+          setY(0);
+          setRotateX(0);
+          setRotateY(0);
+        };
+
+        hero.addEventListener("pointermove", handleMove);
+        hero.addEventListener("pointerleave", handleLeave);
+
+        cleanupPointer = () => {
+          hero.removeEventListener("pointermove", handleMove);
+          hero.removeEventListener("pointerleave", handleLeave);
+        };
+      }
     }, heroRef);
 
-    return () => ctx.revert();
+    return () => {
+      cleanupPointer();
+      ctx.revert();
+    };
   }, []);
 
   return (
@@ -70,7 +187,7 @@ export default function Hero() {
       className="relative min-h-screen overflow-hidden pt-24 sm:pt-28"
     >
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-hero-glow" />
+        <div className="hero-glow-pulse absolute inset-0 bg-hero-glow" />
         <div className="absolute inset-0 bg-mesh-dark opacity-60" />
         <svg
           className="hero-parallax absolute inset-0 w-full h-full opacity-25"
@@ -81,23 +198,23 @@ export default function Hero() {
             d="M60 120 L140 80 L220 120 L280 90 L340 130 L420 110 L480 150 L560 130 L640 170 L720 150 L820 200"
             stroke="#3CB98C"
             strokeWidth="2"
-            className="animate-route-dash"
+            className="hero-route"
           />
           <path
             d="M80 260 L160 240 L220 260 L300 230 L360 260 L420 250 L520 280 L600 270 L680 300"
             stroke="#4CCFA0"
             strokeWidth="1.5"
-            className="animate-route-dash"
+            className="hero-route"
           />
           <path
             d="M120 360 L220 340 L300 360 L380 330 L460 370 L540 350 L620 380 L700 360"
             stroke="#2E8E6B"
             strokeWidth="1"
-            className="animate-route-dash"
+            className="hero-route"
           />
         </svg>
         <svg
-          className="absolute right-0 top-10 hidden md:block w-full max-w-[620px] opacity-30"
+          className="hero-parallax absolute right-0 top-10 hidden md:block w-full max-w-[620px] opacity-30"
           viewBox="0 0 600 360"
           fill="none"
         >
@@ -123,25 +240,36 @@ export default function Hero() {
 
       <div className="section-padding relative z-10">
         <div className="max-w-3xl">
-          <h1 className="hero-animate text-3xl sm:text-4xl md:text-6xl font-display font-semibold leading-snug sm:leading-tight">
-            Road Freight & Warehousing, Done Right
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-display font-semibold leading-snug sm:leading-tight">
+            <span className="sr-only">{title}</span>
+            <span aria-hidden="true" className="hero-title">
+              {words.map((word, index) => (
+                <span key={`${word}-${index}`} className="hero-title-word">
+                  {word}
+                </span>
+              ))}
+            </span>
           </h1>
-          <p className="hero-animate mt-6 text-lg text-white/70">
+          <p className="hero-subtitle mt-6 text-lg text-white/70">
             We are one of the first and Only Logistics company to be registered
             member of United Nations.
           </p>
-          <div className="hero-animate mt-8 flex flex-wrap items-center gap-4">
+          <div className="hero-cta mt-8 flex flex-wrap items-center gap-4">
             <MagneticButton href="#contact" className="bg-green text-navy shadow-glow">
               Request a Quote <FiArrowUpRight />
             </MagneticButton>
           </div>
         </div>
 
-        <div className="hero-animate mt-12 overflow-hidden rounded-[28px] border border-white/10 bg-white shadow-soft">
+        <div
+          ref={imageWrapRef}
+          className="hero-media hero-truck-wrap mt-12 overflow-hidden rounded-[28px] border border-white/10 bg-white shadow-soft"
+        >
+          <span className="hero-truck-shadow hero-shadow" />
           <img
             src={heroImage}
             alt="Road freight and warehousing"
-            className="h-full w-full object-cover"
+            className="hero-truck h-full w-full object-cover"
           />
         </div>
       </div>
@@ -150,7 +278,7 @@ export default function Hero() {
         {statCards.map((card) => (
           <div
             key={card.label}
-            className={`hero-float hidden lg:flex absolute ${card.className} glass-card rounded-[24px] px-5 py-4 gap-3 items-center`}
+            className={`hero-float hero-stat hidden lg:flex absolute ${card.className} glass-card rounded-[24px] px-5 py-4 gap-3 items-center`}
           >
             <div className="h-12 w-12 rounded-2xl bg-green/20 border border-green/40 flex items-center justify-center text-green">
               {card.value}

@@ -2,32 +2,53 @@ import { useLayoutEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { MotionPathPlugin } from "gsap/MotionPathPlugin";
 import SectionHeading from "../components/SectionHeading";
 
 export default function LogisticsMap() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const routeRef = useRef<SVGPathElement>(null);
 
   useLayoutEffect(() => {
-    gsap.registerPlugin(ScrollTrigger);
-    const path = routeRef.current;
-    if (!path) return;
-    const length = path.getTotalLength();
+    gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
+    const ctx = gsap.context(() => {
+      const routes = gsap.utils.toArray<SVGPathElement>(".map-route");
+      routes.forEach((route, index) => {
+        const length = route.getTotalLength();
+        gsap.set(route, { strokeDasharray: length, strokeDashoffset: length });
+        gsap.to(route, {
+          strokeDashoffset: 0,
+          duration: 2 + index * 0.4,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top 70%"
+          }
+        });
+      });
 
-    gsap.set(path, {
-      strokeDasharray: length,
-      strokeDashoffset: length
-    });
+      const dots = gsap.utils.toArray<SVGCircleElement>(".map-dot");
+      dots.forEach((dot, index) => {
+        const path = routes[index % routes.length];
+        if (!path) return;
+        gsap.to(dot, {
+          duration: 6 + index * 1.4,
+          repeat: -1,
+          ease: "none",
+          motionPath: {
+            path,
+            align: path,
+            alignOrigin: [0.5, 0.5]
+          },
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top 70%",
+            toggleActions: "play pause resume pause"
+          }
+        });
+      });
+    }, sectionRef);
 
-    gsap.to(path, {
-      strokeDashoffset: 0,
-      duration: 1.6,
-      ease: "power2.out",
-      scrollTrigger: {
-        trigger: sectionRef.current,
-        start: "top 70%"
-      }
-    });
+    return () => ctx.revert();
   }, []);
 
   return (
@@ -58,16 +79,35 @@ export default function LogisticsMap() {
               fill="none"
             />
             <path
-              ref={routeRef}
               d="M80 140 L140 100 L220 120 L300 110 L340 150"
               stroke="#3CB98C"
               strokeWidth="3"
               strokeLinecap="round"
               fill="none"
+              className="map-route"
             />
-            <circle cx="90" cy="130" r="6" fill="#3CB98C" />
-            <circle cx="220" cy="120" r="6" fill="#3CB98C" />
-            <circle cx="320" cy="145" r="6" fill="#3CB98C" />
+            <path
+              d="M90 200 L150 180 L210 200 L270 190 L330 210"
+              stroke="#4CCFA0"
+              strokeWidth="2"
+              strokeLinecap="round"
+              fill="none"
+              className="map-route"
+            />
+            <path
+              d="M110 90 L160 80 L220 90 L270 70 L310 90"
+              stroke="#2E8E6B"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              fill="none"
+              className="map-route"
+            />
+            <circle cx="90" cy="130" r="6" fill="#3CB98C" className="map-pulse" />
+            <circle cx="220" cy="120" r="6" fill="#3CB98C" className="map-pulse" />
+            <circle cx="320" cy="145" r="6" fill="#3CB98C" className="map-pulse" />
+            <circle r="4" fill="#7CF2C8" className="map-dot" />
+            <circle r="4" fill="#7CF2C8" className="map-dot" />
+            <circle r="4" fill="#7CF2C8" className="map-dot" />
           </svg>
 
           <motion.div

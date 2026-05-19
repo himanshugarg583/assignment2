@@ -37,11 +37,16 @@ export default function Navbar() {
   }, [theme]);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50">
+    <motion.header
+      className="fixed top-0 left-0 right-0 z-50"
+      initial={{ opacity: 0, y: -18 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+    >
       <div
         className={`section-padding mx-auto flex items-center justify-between py-4 transition-all ${
           scrolled
-            ? "bg-white/5 backdrop-blur-2xl border-b border-white/10"
+            ? "bg-white/5 backdrop-blur-2xl border-b border-white/10 shadow-soft"
             : "bg-transparent"
         }`}
       >
@@ -56,7 +61,7 @@ export default function Navbar() {
             <a
               key={link.href}
               href={link.href}
-              className="transition hover:text-green"
+              className="nav-link transition hover:text-green"
             >
               {link.label}
             </a>
@@ -90,9 +95,10 @@ export default function Navbar() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.35, ease: "easeOut" }}
             className="lg:hidden bg-ink/95 backdrop-blur-xl border-b border-white/10"
           >
             <div className="section-padding py-6 flex flex-col gap-5 text-white/80">
@@ -100,7 +106,7 @@ export default function Navbar() {
                 <a
                   key={link.href}
                   href={link.href}
-                  className="text-sm transition hover:text-green"
+                  className="nav-link text-sm transition hover:text-green"
                   onClick={() => setIsOpen(false)}
                 >
                   {link.label}
@@ -124,6 +130,6 @@ export default function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
-    </header>
+    </motion.header>
   );
 }

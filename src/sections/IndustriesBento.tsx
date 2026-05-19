@@ -77,7 +77,7 @@ export default function IndustriesBento() {
           {standards.map((standard, index) => (
             <div
               key={standard.title}
-              className="industry-stack-card absolute inset-x-0 glass-card rounded-[24px] p-6 overflow-hidden"
+              className="industry-stack-card absolute inset-x-0 rounded-[24px] p-6 overflow-hidden"
               style={{ zIndex: index + 1 }}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-green/10 via-transparent to-white/5" />
