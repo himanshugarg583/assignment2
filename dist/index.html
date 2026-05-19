@@ -1,11 +1,25 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>EG TRANS | Premium Logistics</title>
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem("eg-theme");
+          var theme = stored === "dark" ? "dark" : "light";
+          document.documentElement.setAttribute("data-theme", theme);
+        } catch (e) {
+          document.documentElement.setAttribute("data-theme", "light");
+        }
+      })();
+    </script>
+    <script type="module" crossorigin src="/assignment2/assets/index-Cr_721hR.js"></script>
+    <link rel="stylesheet" crossorigin href="/assignment2/assets/index-ByAX1Dh2.css">
   </head>
-  <body class="bg-[#051423]">
-    <div id="root"></div>
+  <body>
+    <div id="root"></div>
   </body>
 </html>
+<!-- dcdc -->
